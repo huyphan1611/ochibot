@@ -3,9 +3,11 @@ const { SlashCommandBuilder, EmbedBuilder, Embed } = require('discord.js')
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('embed')
-    .setDescription('Return an embed!'),
+    .setDescription('Tạo ra một giao diện embed!'),
 
+    
   async execute (interaction, client) {
+ 
     const embed = new EmbedBuilder()
       .setTitle(`Embed Title`)
       .setDescription(`Embed description`)
@@ -13,7 +15,7 @@ module.exports = {
       .setImage(
         `https://cdn.discordapp.com/attachments/1239836342456942645/1248235641213550603/banner_2024.gif?ex=6662ed87&is=66619c07&hm=9969cf5a5731df8bd4abc0b4f9cacb87dceef4caa666819b4ab62db1b643ceca&`
       )
-      .setThumbnail(client.user.displayAvatarURL())
+      .setThumbnail()
       .setTimestamp(Date.now())
       .addFields([
         {
@@ -33,3 +35,4 @@ module.exports = {
     })
   }
 }
+
