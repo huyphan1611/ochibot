@@ -3,7 +3,7 @@ const { EmbedBuilder, Permissions } = require('discord.js');
 
 let listaram = [];
 let countdownIntervals = {};
-
+let timeEscapeEnd = null; // Biến toàn cục để lưu trữ thời gian kết thúc của timeEscape
 function removePlayerFromList(userId) {
   const index = listaram.findIndex(player => player.userId === userId);
   if (index !== -1) {
@@ -168,24 +168,35 @@ module.exports = {
 
     const timeEnd = Date.now() + timewait * 60000;
     const initialTimeAx = `\`${Math.floor(timewait)} phút\``;
-    const descriptions = [
-      'Mô tả ngẫu nhiên số 1',
-      'Mô tả ngẫu nhiên số 2',
-      'Mô tả ngẫu nhiên số 3',
-      'Mô tả ngẫu nhiên số 4',
-      'Mô tả ngẫu nhiên số 5'
+    let descriptions = [
+      '> <a:khacloading:1135980575384150117> Đang kết nối • Game Group • Bíp...Bíp...',
+      '> <a:khacloading:1135980575384150117> Cổng kết nối số...được...kích...hoạt...',
+      '> <a:khacloading:1135980575384150117> O...ro....zi...iii...',
+      '> <a:khacloading:1135980575384150117> Xin hãy kiên nhẫn•\n>Đang có chút trục trặc...O..zi...',
+      '> <a:khacloading:1135980575384150117> O...zi...kiệt sức rồi...',
+      '> <a:khacloading:1135980575384150117> Ngồi xuống nhâm nhi 1 tách trà đi •\n> Tôi sẽ tìm được cho bạn ngay thôi.',
+      '> <a:khacloading:1135980575384150117> Hệ thống Game Group •\n> Xin chào bạn! ♪',
+      '> <a:khacloading:1135980575384150117> Ting•ting•ting•♪♪♪',
+      '> <a:khacloading:1135980575384150117> Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa • ▓▓▓ '
     ];
-    const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+
+    // Hàm để lấy một phần tử ngẫu nhiên từ mảng
+    function getRandomDescription(descriptions) {
+      const randomIndex = Math.floor(Math.random() * descriptions.length);
+      return descriptions[randomIndex];
+    }
+
+    const randomDescription = getRandomDescription(descriptions);
 
     let embed;
     if (voiceType === 'public') {
       embed = new EmbedBuilder()
-        .setDescription(`Cần tìm vài slot `)
+        .setDescription(randomDescription)
         .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
-        .setColor(0x00AE86)
-        .setAuthor({ name: member.user.username, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
+        .setColor('#9598F9')
+        .setAuthor({ name: `${member.user.username}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
         .setTimestamp(Date.now())
-        .setFooter({ text: 'Chọn +1 phía dưới để gửi đề nghị tham gia. ', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251126006245359696/down2.png?ex=666d7164&is=666c1fe4&hm=3193f247e42ac81ecb7eab2513031ebd297c9be863659eed1336e22bea05f0c5&' })
+        .setFooter({ text: '▼ Click', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251207794250612878/1.png?ex=666dbd90&is=666c6c10&hm=34a60d14a77ca1ff4cf5fc3d4aa6898a7a0b5614dceb5449231643f2e10818e8&' })
         .addFields([
           {
             name: `RoomVoice`,
@@ -199,18 +210,18 @@ module.exports = {
           },
           {
             name: `◜Slots◝`,
-            value: `◟[${slots}/5]◞`,
+            value: `**◟[${slots}/5]◞**`,
             inline: true
           }
         ]);
     } else {
       embed = new EmbedBuilder()
-        .setDescription(`Cần tìm vài slot `)
+        .setDescription(descriptions)
         .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
-        .setColor(0x00AE86)
+        .setColor('#9598F9')
         .setAuthor({ name: member.user.username, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
         .setTimestamp(Date.now())
-        .setFooter({ text: 'Chọn +1 phía dưới để gửi đề nghị tham gia. ', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251126006245359696/down2.png?ex=666d7164&is=666c1fe4&hm=3193f247e42ac81ecb7eab2513031ebd297c9be863659eed1336e22bea05f0c5&' })
+        .setFooter({ text: '▼ Click', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251207794250612878/1.png?ex=666dbd90&is=666c6c10&hm=34a60d14a77ca1ff4cf5fc3d4aa6898a7a0b5614dceb5449231643f2e10818e8&' })
         .addFields([
           {
             name: `Thời gian chờ`,
@@ -219,11 +230,19 @@ module.exports = {
           },
           {
             name: `◜Slots◝`,
-            value: `◟[${slots}/5]◞`,
+            value: `**◟[${slots}/5]◞**`,
             inline: true
           }
         ]);
-    }
+    }// Kiểm tra timeEscapeEnd và cập nhật hành vi của lệnh
+if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
+  await context.channel.send(`<Ko tag aram`);
+  console.log('ko tag aram1:');console.log(timeEscapeEnd);console.log(Date.now);
+} else { console.log('co tag aram1:');console.log(timeEscapeEnd);
+  await context.channel.send(`Co Tag Aram`);console.log(timeEscapeEnd);
+  timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
+  console.log('co tag aram2:'); // Đặt thời gian kết thúc cho 12 giờ tiếp theo
+}
 
     let message;
     try {
@@ -260,6 +279,7 @@ module.exports = {
       reactedUsers: new Set(),
       disabledUntil: null,
       voiceType: voiceType
+
     });
 
     if (countdownIntervals[member.user.id]) {

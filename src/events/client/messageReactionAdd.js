@@ -18,7 +18,6 @@ module.exports = {
       if (user.id === player.commandUserId) {
         try {
           await reaction.users.remove(user.id);
-          await user.send(`Không được, bạn là người dùng lệnh.`);
         } catch (error) {
           console.error('Failed to send message after reaction:', error);
         }
