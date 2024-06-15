@@ -23,26 +23,26 @@ client.commandArray = [];
 
 
 // Thiết lập SQLite thông qua Sequelize
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'database.sqlite'
-});
+// const sequelize = new Sequelize({
+//   dialect: 'sqlite',
+//   storage: 'database.sqlite'
+// });
 
 // Mô hình người dùng với hai loại tiền tệ
-const User = sequelize.define('User', {
-  userId: {
-      type: DataTypes.STRING,
-      unique: true,
-  },
-  currency1: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-  },
-  currency2: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-  },
-});
+// const User = sequelize.define('User', {
+//   userId: {
+//       type: DataTypes.STRING,
+//       unique: true,
+//   },
+//   currency1: {
+//       type: DataTypes.INTEGER,
+//       defaultValue: 0,
+//   },
+//   currency2: {
+//       type: DataTypes.INTEGER,
+//       defaultValue: 0,
+//   },
+// });
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -99,7 +99,7 @@ function updateEnvFile(guildId) {
       reply: async (msg) => await message.reply(msg),
       deferReply: async () => {},
       editReply: async (msg) => await message.edit(msg),
-      User: User // Thêm User vào context
+      // User: User // Thêm User vào context
     };
 
     await command.execute(context);

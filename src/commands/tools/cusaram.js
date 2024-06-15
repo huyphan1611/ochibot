@@ -85,9 +85,9 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
 
 async function handleVoiceStateUpdate(oldState, newState) {
   if (oldState.channelId && oldState.channelId !== newState.channelId) {
-    const userInListaram = listaram.find(item => item.userId === oldState.id);
+    const userInlistaram = listaram.find(item => item.userId === oldState.id);
 
-    if (userInListaram && userInListaram.voiceChannelLink.includes(oldState.channelId)) {
+    if (userInlistaram && userInlistaram.voiceChannelLink.includes(oldState.channelId)) {
       await handleUserLeftVoiceChannel(oldState.id, oldState, newState);
     }
   }
@@ -95,7 +95,7 @@ async function handleVoiceStateUpdate(oldState, newState) {
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('aram')
+    .setName('cusaram')
     .setDescription('Tham gia voice chat')
     .addIntegerOption(option => 
       option.setName('slots')
@@ -105,7 +105,12 @@ module.exports = {
           { name: '1', value: 1 },
           { name: '2', value: 2 },
           { name: '3', value: 3 },
-          { name: '4', value: 4 }
+          { name: '4', value: 4 },
+          { name: '5', value: 5 },
+          { name: '6', value: 6 },
+          { name: '7', value: 7 },
+          { name: '8', value: 8 },
+          { name: '9', value: 9 },
         ))
     .addIntegerOption(option => 
       option.setName('thoigiancho')
@@ -214,8 +219,8 @@ module.exports = {
             inline: true
           },
           {
-            name: `◜Slots◝`,
-            value: `**◟[${slots}/5]◞**`,
+            name: `◜Slots ◝`,
+            value: `**◟[${slots}/10]◞**`,
             inline: true
           }
         ]);
@@ -284,9 +289,9 @@ if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
       reactedUsers: new Set(),
       disabledUntil: null,
       voiceType: voiceType,
-      type: 'ARAM'
+      type: 'CUSTOM ARAM'
     });
-
+console.log(listaram)
     if (countdownIntervals[member.user.id]) {
       clearInterval(countdownIntervals[member.user.id]);
     }

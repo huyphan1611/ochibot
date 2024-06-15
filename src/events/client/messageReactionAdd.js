@@ -57,7 +57,7 @@ module.exports = {
             );
 
             const responseMessage = await textChannel.send({
-                content: `<@${player.commandUserId}>, Người chơi \`${user.username}\` đang yêu cầu vào voice channel <#${voiceChannelId}>.`,
+                content: `### <a:oz_thongbao:1251399339407052842>Tìm thấy rồi\nHi, <@${player.commandUserId}>\n <a:oz_arrow1:1251400465292333168> OZI đã kết nối được với người chơi \`${user.username}\`.\n <a:khacloading:1135980575384150117> **XÁC NHẬN?**`,
                 components: [row]
               });
     
@@ -70,8 +70,10 @@ module.exports = {
     
               collector.on('collect', async interaction => {
                 if (interaction.customId === 'accept') {
-                  await textChannel.send(`<@${user.id}>, Mời bạn vào room <#${voiceChannelId}>.`);
-                                                                                                       console.log(voiceChannelId);  console.log('cac'); console.log(player); console.log(player.voiceType);
+                  
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  await textChannel.send(`<a:oz_check:1251400672675631205> Kết nối thành công.\n<@${user.id}>, **hãy bấm vào**<a:oz_arrow5:1251400525459492894> <#${voiceChannelId}> **để tham gia.**`);
+                                                                                                       
                   // Grant the user permissions to view and speak in the voice channel if the type is 'hidden'
                   if (player.voiceType === 'hidden') {
                     const voiceChannel = await reaction.message.guild.channels.fetch(voiceChannelId);
@@ -86,8 +88,9 @@ module.exports = {
                       [PermissionsBitField.Flags.Speak]: true
                     });
                   }
+                  await responseMessage.delete()
                 } else if (interaction.customId === 'reject') {
-                  await user.send(`> <@${user.id}> có vẻ đã trượt mất cơ hội rồi\n> Nhưng không sao, cơ hội sẽ đến nếu ngươi tiếp tục.\n> Ta tin ngươi sẽ tìm được đồng đội!<:chohug:1123943848360554496>`);
+                  
                   player.reactedUsers.delete(user.id); // Remove user from reacted users set
                   // Disable the /aram command for the next 15 minutes
                   player.disabledUntil = Date.now() + 15 * 60000;
