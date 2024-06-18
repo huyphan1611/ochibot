@@ -1,11 +1,12 @@
 const { listaram } = require('../../commands/tools/aram');
 const { listcusaram } = require('../../commands/tools/cusaram');
 const { countdownIntervals } = require('../../commands/tools/aram');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, channelLink } = require('discord.js');
 
 module.exports = {
   name: 'messageReactionAdd',
   async execute(reaction, user) {
+    
     // Ignore reactions from bots
     if (user.bot) return;
 
@@ -71,6 +72,16 @@ module.exports = {
 
           collector.on('collect', async interaction => {
             if (interaction.customId === 'accept') {
+
+              // Fetch the target user's GuildMember object
+              let targetUser = await interaction.guild.members.fetch(user.id);
+              console.log(interaction)
+              
+              // Check if the user is valid and move them to the voice channel
+              if (targetUser) {
+                await targetUser.voice.setChannel(voiceChannelId);
+              }
+
               await new Promise(resolve => setTimeout(resolve, 1000));
               await textChannel.send(`<a:oz_check:1251400672675631205> Kết nối thành công.\n<@${user.id}>, **hãy bấm vào**<a:oz_arrow5:1251400525459492894> <#${voiceChannelId}> **để tham gia.**`);
 
