@@ -1,5 +1,20 @@
 // const { EmbedBuilder } = require('discord.js');
-// const { listaram, countdownIntervals } = require('../../commands/tools/aram');
+// const { countdownIntervals } = require('../../commands/tools/aram');
+// // Cập nhật biến listaram động
+// const { listaram: listaramFromAram } = require('../../commands/tools/aram');
+// const { listaram: listaramFromCusaram } = require('../../commands/tools/cusaram');
+
+// // Kết hợp hai mảng listaram lại với nhau
+// let combinedList = [...listaramFromAram, ...listaramFromCusaram];
+
+// // Sắp xếp danh sách theo timeEnd
+// combinedList.sort((a, b) => a.timeEnd - b.timeEnd);
+
+// // Loại bỏ các người chơi có cùng userId và timeZ nhỏ hơn
+// combinedList = combinedList.filter((player, index, self) =>
+//   index === self.findIndex(p => p.userId === player.userId && p.timeZ >= 0)
+// );
+// let listaram=combinedList;
 
 // module.exports = {
 //   name: 'voiceStateUpdate',

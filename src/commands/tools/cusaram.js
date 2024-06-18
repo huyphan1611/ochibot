@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, Permissions } = require('discord.js');
+const { listaram } = require('../../commands/tools/aram');
 
-let listaram = [];
+// let listcusaram = [];
 let countdownIntervals = {};
 let timeEscapeEnd = null; // Biến toàn cục để lưu trữ thời gian kết thúc của timeEscape
 function removePlayerFromList(userId) {
@@ -14,44 +15,47 @@ function removePlayerFromList(userId) {
 
 async function updateEmbed(message, timeEnd, userId) {
   const remainingTime = timeEnd - Date.now();
-
+  
   let newTimeAx;
-  if (remainingTime > 0) {
-    const minutes = Math.floor(remainingTime / 60000);
-    const seconds = Math.floor((remainingTime % 60000) / 1000);
+  if (message){
+    if (remainingTime > 0) {
+      console.log(timeEnd)
+      const minutes = Math.floor(remainingTime / 60000);
+      const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-    if (remainingTime < 60000) {
-      newTimeAx = `\`${seconds} giây\``;
-    } else {
-      newTimeAx = `\`${minutes} phút\``;
-    }
+      if (remainingTime < 60000) {
+        newTimeAx = `\`${seconds} giây\``;
+      } else {
+        newTimeAx = `\`${minutes} phút\``;
+      }
 
-    if (message.embeds[0].fields[1].value !== newTimeAx) {
+      if (message && message.embeds[0].fields[1].value !== newTimeAx) {
+        const updatedEmbed = EmbedBuilder.from(message.embeds[0])
+          .spliceFields(1, 1, { name: 'Thời gian chờ', value: newTimeAx, inline: true });
+          console.log('nhay di')
+        try {
+          await message.edit({ embeds: [updatedEmbed] });
+        } catch (error) {
+          console.error('Failed to update message:', error);
+          clearInterval(countdownIntervals[userId]);
+          delete countdownIntervals[userId];
+          removePlayerFromList(userId);
+        }
+      }
+    } 
+    else {
+      clearInterval(countdownIntervals[userId]);
+      delete countdownIntervals[userId];
+      removePlayerFromList(userId);
+    
       const updatedEmbed = EmbedBuilder.from(message.embeds[0])
-        .spliceFields(1, 1, { name: 'Thời gian chờ', value: newTimeAx, inline: true });
+        .spliceFields(1, 1, { name: 'Thời gian chờ', value: '`Đã vào trận`', inline: true });
 
       try {
         await message.edit({ embeds: [updatedEmbed] });
       } catch (error) {
         console.error('Failed to update message:', error);
-        clearInterval(countdownIntervals[userId]);
-        delete countdownIntervals[userId];
-        removePlayerFromList(userId);
       }
-    }
-  } else {
-    clearInterval(countdownIntervals[userId]);
-    delete countdownIntervals[userId];
-    removePlayerFromList(userId);
-    console.log('sau khi hết thời gian:', listaram);
-
-    const updatedEmbed = EmbedBuilder.from(message.embeds[0])
-      .spliceFields(1, 1, { name: 'Thời gian chờ', value: '`Đã vào trận`', inline: true });
-
-    try {
-      await message.edit({ embeds: [updatedEmbed] });
-    } catch (error) {
-      console.error('Failed to update message:', error);
     }
   }
 }
@@ -64,19 +68,20 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
   if (userIndex !== -1) {
     const user = listaram[userIndex];
     listaram.splice(userIndex, 1);
-
+    
     const channel = await oldState.guild.channels.fetch(user.channelId);
     const message = await channel.messages.fetch(user.messageId);
 
-    const updatedEmbed = new EmbedBuilder()
-      .setDescription(`Rất tiếc, tôi đã rời khỏi phòng`)
+    const updatedEmbed = new EmbedBuilder() 
+    .setDescription(`**${oldState.member.user.username}** đã rời khỏi phòng khi đang chờ trận.\n<a:oz_bluewirly:1251414262392291379><a:oz_bluewirly:1251414262392291379><a:oz_bluewirly:1251414262392291379>`)
       .setThumbnail('https://cdn.discordapp.com/attachments/1249448980258226249/1251506806761586750/oz_ghostblue.png?ex=666ed40a&is=666d828a&hm=5f48380b5f080648c56b444e09d198cdebb5da477e50f0d37ad2a76c7e4cda49&')
       .setColor('#FF5966')
       .setFooter({ text: 'Disconnected', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251506086519902218/oz_off.png?ex=666ed35e&is=666d81de&hm=2543a5df7d09fbbf0ca2626871a7ee5047b111ea2bb7837f03bab0be8ca76e6a&'})
       .setTimestamp(Date.now());
 
     try {
-      await message.edit({ embeds: [updatedEmbed] });
+      await message.delete();
+      await channel.send({ embeds: [updatedEmbed] });
     } catch (error) {
       console.error('Failed to update message after user left the voice channel:', error);
     }
@@ -160,7 +165,7 @@ module.exports = {
 
 
     const existingUserIndex = listaram.findIndex(player => player.userId === member.user.id);
-    if (existingUserIndex !== -1) {
+    if (existingUserIndex !== -1) { 
       clearInterval(countdownIntervals[member.user.id]);
       delete countdownIntervals[member.user.id];
       listaram.splice(existingUserIndex, 1);
@@ -173,19 +178,19 @@ module.exports = {
     let descriptions = [
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>'
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>'
     ];
 
     // Hàm để lấy một phần tử ngẫu nhiên từ mảng
@@ -199,7 +204,7 @@ module.exports = {
     let embed;
     if (voiceType === 'public') {
       embed = new EmbedBuilder()
-        .setTitle('<:oz_play:1251569356412813394> 𝗔𝗥𝗔𝗠 ')
+        .setTitle('<:oz_play:1251569356412813394> 𝗖𝗨𝗦𝗧𝗢𝗠 𝗔𝗥𝗔𝗠 ')
         .setDescription(randomDescription)
 
         .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
@@ -226,7 +231,7 @@ module.exports = {
         ]);
     } else {
       embed = new EmbedBuilder()
-        .setTitle('•➤ 𝗰𝗵𝗼̛𝗶 𝗔𝗥𝗔𝗠 ')
+        .setTitle('<:oz_play:1251569356412813394> 𝗖𝗨𝗦𝗧𝗢𝗠 𝗔𝗥𝗔𝗠 ')
         .setDescription(randomDescription)
         .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
         .setColor('#1cf1ef')
@@ -246,14 +251,14 @@ module.exports = {
           }
         ]);
     }// Kiểm tra timeEscapeEnd và cập nhật hành vi của lệnh
-if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
-  
-  
-} else {
-  await context.channel.send(`Aram`);
-  timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
-// Đặt thời gian kết thúc cho 12 giờ tiếp theo
-}
+    if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
+      
+      
+    } else {
+      await context.channel.send(`Aram`);
+      timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
+    // Đặt thời gian kết thúc cho 12 giờ tiếp theo
+    }
 
     let message;
     try {
@@ -289,9 +294,11 @@ if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
       reactedUsers: new Set(),
       disabledUntil: null,
       voiceType: voiceType,
-      type: 'CUSTOM ARAM'
+      type: 'CUSTOM ARAM',
+      timeZ: timeDelayCommand
     });
-console.log(listaram)
+    
+    console.log(countdownIntervals)
     if (countdownIntervals[member.user.id]) {
       clearInterval(countdownIntervals[member.user.id]);
     }
@@ -302,6 +309,7 @@ console.log(listaram)
   },
   handleVoiceStateUpdate
 };
+
 
 module.exports.listaram = listaram;
 module.exports.countdownIntervals = countdownIntervals;

@@ -8,7 +8,7 @@ function removePlayerFromList(userId) {
   const index = listaram.findIndex(player => player.userId === userId);
   if (index !== -1) {
     listaram.splice(index, 1);
-    console.log('Gỡ người dùng khỏi list aram', listaram);
+    
   }
 }
 
@@ -43,7 +43,7 @@ async function updateEmbed(message, timeEnd, userId) {
     clearInterval(countdownIntervals[userId]);
     delete countdownIntervals[userId];
     removePlayerFromList(userId);
-    console.log('sau khi hết thời gian:', listaram);
+
 
     const updatedEmbed = EmbedBuilder.from(message.embeds[0])
       .spliceFields(1, 1, { name: 'Thời gian chờ', value: '`Đã vào trận`', inline: true });
@@ -69,14 +69,15 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
     const message = await channel.messages.fetch(user.messageId);
 
     const updatedEmbed = new EmbedBuilder()
-      .setDescription(`Rất tiếc, tôi đã rời khỏi phòng`)
+      .setDescription(`**${oldState.member.user.username}** đã rời khỏi phòng khi đang chờ trận.\n<a:oz_bluewirly:1251414262392291379><a:oz_bluewirly:1251414262392291379><a:oz_bluewirly:1251414262392291379>`)
       .setThumbnail('https://cdn.discordapp.com/attachments/1249448980258226249/1251506806761586750/oz_ghostblue.png?ex=666ed40a&is=666d828a&hm=5f48380b5f080648c56b444e09d198cdebb5da477e50f0d37ad2a76c7e4cda49&')
       .setColor('#FF5966')
       .setFooter({ text: 'Disconnected', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251506086519902218/oz_off.png?ex=666ed35e&is=666d81de&hm=2543a5df7d09fbbf0ca2626871a7ee5047b111ea2bb7837f03bab0be8ca76e6a&'})
       .setTimestamp(Date.now());
 
     try {
-      await message.edit({ embeds: [updatedEmbed] });
+      await message.delete();
+      await channel.send({ embeds: [updatedEmbed] });
     } catch (error) {
       console.error('Failed to update message after user left the voice channel:', error);
     }
@@ -159,7 +160,7 @@ module.exports = {
       clearInterval(countdownIntervals[member.user.id]);
       delete countdownIntervals[member.user.id];
       listaram.splice(existingUserIndex, 1);
-      console.log('Gỡ người dùng khỏi list:', listaram);
+     
     }
 
 
@@ -168,19 +169,19 @@ module.exports = {
     let descriptions = [
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
-      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/aram` dùng để mở phiếu tìm đồng đội.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>'
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>'
     ];
 
     // Hàm để lấy một phần tử ngẫu nhiên từ mảng
@@ -221,7 +222,7 @@ module.exports = {
         ]);
     } else {
       embed = new EmbedBuilder()
-        .setTitle('•➤ 𝗰𝗵𝗼̛𝗶 𝗔𝗥𝗔𝗠 ')
+        .setTitle('<:oz_play:1251569356412813394> 𝗔𝗥𝗔𝗠 ')
         .setDescription(randomDescription)
         .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
         .setColor('#1cf1ef')
@@ -241,14 +242,14 @@ module.exports = {
           }
         ]);
     }// Kiểm tra timeEscapeEnd và cập nhật hành vi của lệnh
-if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
-  
-  
-} else {
-  await context.channel.send(`Aram`);
-  timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
-// Đặt thời gian kết thúc cho 12 giờ tiếp theo
-}
+  if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
+    
+    
+  } else {
+    await context.channel.send(`Aram`);
+    timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
+  // Đặt thời gian kết thúc cho 12 giờ tiếp theo
+  }
 
     let message;
     try {
@@ -284,7 +285,8 @@ if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
       reactedUsers: new Set(),
       disabledUntil: null,
       voiceType: voiceType,
-      type: 'ARAM'
+      type: 'ARAM',
+      timeZ: timeDelayCommand
     });
 
     if (countdownIntervals[member.user.id]) {
