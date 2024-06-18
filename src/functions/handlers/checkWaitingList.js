@@ -1,10 +1,10 @@
-const { EmbedBuilder } = require('discord.js');
-let { listaram } = require('../../commands/tools/aram'); // Chuyển từ const sang let
+const { EmbedBuilder } = require("discord.js");
+let { listaram } = require("../../commands/tools/aram"); // Chuyển từ const sang let
 
 module.exports = (client) => {
   const checkWaitingList = () => {
     const now = Date.now();
-    listaram = listaram.filter(player => {
+    listaram = listaram.filter((player) => {
       const guild = client.guilds.cache.get(player.guildId);
       if (!guild) return false;
 
@@ -26,7 +26,6 @@ module.exports = (client) => {
   // Start the first check
   checkWaitingList();
 };
-
 
 // const { EmbedBuilder } = require('discord.js');
 // let { listaram } = require('../../commands/tools/aram'); // Chuyển từ const sang let

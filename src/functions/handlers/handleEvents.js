@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-module.exports = client => {
+module.exports = (client) => {
   client.handleEvents = async () => {
-    const eventsPath = path.join(__dirname, '../../events');
+    const eventsPath = path.join(__dirname, "../../events");
     if (!fs.existsSync(eventsPath)) {
       console.error(`Đường dẫn không tồn tại: ${eventsPath}`);
       return;
@@ -12,16 +12,20 @@ module.exports = client => {
     const eventFolders = fs.readdirSync(eventsPath);
     for (const folder of eventFolders) {
       const folderPath = path.join(eventsPath, folder);
-      const eventFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
+      const eventFiles = fs
+        .readdirSync(folderPath)
+        .filter((file) => file.endsWith(".js"));
 
       for (const file of eventFiles) {
         const event = require(path.join(folderPath, file));
-        
+
         if (event.name) {
           console.log(`Đang tải sự kiện: ${event.name} từ tệp ${file}`);
 
           if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args, client));
+            client.once(event.name, (...args) =>
+              event.execute(...args, client)
+            );
           } else {
             client.on(event.name, (...args) => event.execute(...args, client));
           }
@@ -32,8 +36,6 @@ module.exports = client => {
     }
   };
 };
-
-
 
 // const fs = require('fs')
 // module.exports = client => {
@@ -63,6 +65,4 @@ module.exports = client => {
 //     }
 //   }
 
-
-  
 // }
