@@ -16,13 +16,11 @@ module.exports = {
 
   async execute(context) {
     // Cập nhật biến listaram động
-    const { listaram: listaramFromAram } = require("../../commands/tools/aram");
-    const {
-      listaram: listaramFromCusaram,
-    } = require("../../commands/tools/cusaram");
+    const { listaram } = require("../../commands/tools/aram");
+    const { listcusaram } = require("../../commands/tools/cusaram");
 
     // Kết hợp hai mảng listaram lại với nhau
-    let combinedList = [...listaramFromAram, ...listaramFromCusaram];
+    let combinedList = [...listaram, ...listcusaram];
 
     // Sắp xếp danh sách theo timeEnd
     combinedList.sort((a, b) => a.timeEnd - b.timeEnd);

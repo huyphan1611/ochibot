@@ -10,8 +10,6 @@ module.exports = {
 
       try {
         const command = client.commands.get(interaction.commandName);
-        console.log(interaction);
-        console.log(client.commands)
         if (!command) return;
         await command.execute(interaction, client);
       } catch (error) {

@@ -6,7 +6,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, chann
 module.exports = {
   name: 'messageReactionAdd',
   async execute(reaction, user) {
-    
+
     // Ignore reactions from bots
     if (user.bot) return;
 
@@ -75,8 +75,7 @@ module.exports = {
 
               // Fetch the target user's GuildMember object
               let targetUser = await interaction.guild.members.fetch(user.id);
-              console.log(interaction)
-              
+
               // Check if the user is valid and move them to the voice channel
               if (targetUser) {
                 await targetUser.voice.setChannel(voiceChannelId);

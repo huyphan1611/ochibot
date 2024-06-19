@@ -32,7 +32,10 @@ async function updateEmbed(message, timeEnd, userId) {
         .spliceFields(1, 1, { name: 'Thời gian chờ', value: newTimeAx, inline: true });
 
       try {
-        await message.edit({ embeds: [updatedEmbed] });
+        const shouldStop = !listaram.findIndex(item => item.userId === userId);
+        if (!shouldStop) {
+          await message.edit({ embeds: [updatedEmbed] });
+        }
       } catch (error) {
         console.error('Failed to update message:', error);
         clearInterval(countdownIntervals[userId]);
@@ -55,6 +58,7 @@ async function updateEmbed(message, timeEnd, userId) {
       console.error('Failed to update message:', error);
     }
   }
+
 }
 
 async function handleUserLeftVoiceChannel(userId, oldState, newState) {
@@ -215,7 +219,7 @@ module.exports = {
 
 
     } else {
-      await interaction.channel.send(`<@&${process.env.ARAM_ID}>`);
+      await interaction.channel.send(`1`); //<@&${process.env.ARAM_ID}>
       timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
       // Đặt thời gian kết thúc cho 12 giờ tiếp theo
     }

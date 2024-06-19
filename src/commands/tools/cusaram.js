@@ -1,15 +1,15 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder, Permissions } = require("discord.js");
-const { listaram } = require("../../commands/tools/aram");
+// const { listcusaram } = require("../../commands/tools/aram");
 
-// let listcusaram = [];
+let listcusaram = [];
 let countdownIntervals = {};
 let timeEscapeEnd = null; // Biến toàn cục để lưu trữ thời gian kết thúc của timeEscape
 function removePlayerFromList(userId) {
-  const index = listaram.findIndex((player) => player.userId === userId);
+  const index = listcusaram.findIndex((player) => player.userId === userId);
   if (index !== -1) {
-    listaram.splice(index, 1);
-    console.log("Gỡ người dùng khỏi list aram", listaram);
+    listcusaram.splice(index, 1);
+    console.log("Gỡ người dùng khỏi list aram", listcusaram);
   }
 }
 
@@ -17,49 +17,51 @@ async function updateEmbed(message, timeEnd, userId) {
   const remainingTime = timeEnd - Date.now();
 
   let newTimeAx;
-  if (message) {
-    if (remainingTime > 0) {
-      // console.log(timeEnd);
-      const minutes = Math.floor(remainingTime / 60000);
-      const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-      if (remainingTime < 60000) {
-        newTimeAx = `\`${seconds} giây\``;
-      } else {
-        newTimeAx = `\`${minutes} phút\``;
-      }
+  if (remainingTime > 0) {
+    // console.log(timeEnd);
+    const minutes = Math.floor(remainingTime / 60000);
+    const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-      if (message && message.embeds[0].fields[1].value !== newTimeAx) {
-        const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
-          1,
-          1,
-          { name: "Thời gian chờ", value: newTimeAx, inline: true }
-        );
-        try {
-          await message.edit({ embeds: [updatedEmbed] });
-        } catch (error) {
-          console.error("Failed to update message:", error);
-          clearInterval(countdownIntervals[userId]);
-          delete countdownIntervals[userId];
-          removePlayerFromList(userId);
-        }
-      }
+    if (remainingTime < 60000) {
+      newTimeAx = `\`${seconds} giây\``;
     } else {
-      clearInterval(countdownIntervals[userId]);
-      delete countdownIntervals[userId];
-      removePlayerFromList(userId);
+      newTimeAx = `\`${minutes} phút\``;
+    }
 
+    if (message && message.embeds[0].fields[1].value !== newTimeAx) {
       const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
         1,
         1,
-        { name: "Thời gian chờ", value: "`Đã vào trận`", inline: true }
+        { name: "Thời gian chờ", value: newTimeAx, inline: true }
       );
-
       try {
-        await message.edit({ embeds: [updatedEmbed] });
+        const shouldStop = !listcusaram.findIndex(item => item.userId === userId);
+        if (!shouldStop) {
+          await message.edit({ embeds: [updatedEmbed] });
+        }
       } catch (error) {
         console.error("Failed to update message:", error);
+        clearInterval(countdownIntervals[userId]);
+        delete countdownIntervals[userId];
+        removePlayerFromList(userId);
       }
+    }
+  } else {
+    clearInterval(countdownIntervals[userId]);
+    delete countdownIntervals[userId];
+    removePlayerFromList(userId);
+
+    const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
+      1,
+      1,
+      { name: "Thời gian chờ", value: "`Đã vào trận`", inline: true }
+    );
+
+    try {
+      await message.edit({ embeds: [updatedEmbed] });
+    } catch (error) {
+      console.error("Failed to update message:", error);
     }
   }
 }
@@ -68,10 +70,10 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
   clearInterval(countdownIntervals[userId]);
   delete countdownIntervals[userId];
 
-  const userIndex = listaram.findIndex((item) => item.userId === userId);
+  const userIndex = listcusaram.findIndex((item) => item.userId === userId);
   if (userIndex !== -1) {
-    const user = listaram[userIndex];
-    listaram.splice(userIndex, 1);
+    const user = listcusaram[userIndex];
+    listcusaram.splice(userIndex, 1);
 
     const channel = await oldState.guild.channels.fetch(user.channelId);
     const message = await channel.messages.fetch(user.messageId);
@@ -105,11 +107,11 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
 
 async function handleVoiceStateUpdate(oldState, newState) {
   if (oldState.channelId && oldState.channelId !== newState.channelId) {
-    const userInlistaram = listaram.find((item) => item.userId === oldState.id);
+    const userInlistcusaram = listcusaram.find((item) => item.userId === oldState.id);
 
     if (
-      userInlistaram &&
-      userInlistaram.voiceChannelLink.includes(oldState.channelId)
+      userInlistcusaram &&
+      userInlistcusaram.voiceChannelLink.includes(oldState.channelId)
     ) {
       await handleUserLeftVoiceChannel(oldState.id, oldState, newState);
     }
@@ -188,7 +190,7 @@ module.exports = {
     const voiceChannelLink = `https://discord.com/channels/${context.guild.id}/${VCID}`;
     const roleId = "1249209211175440384";
 
-    const existingUserInVC = listaram.find(
+    const existingUserInVC = listcusaram.find(
       (player) =>
         player.voiceChannelLink === voiceChannelLink &&
         player.userId !== member.user.id
@@ -201,20 +203,20 @@ module.exports = {
       return;
     }
 
-    const existingUserIndex = listaram.findIndex(
+    const existingUserIndex = listcusaram.findIndex(
       (player) => player.userId === member.user.id
     );
     if (existingUserIndex !== -1) {
       clearInterval(countdownIntervals[member.user.id]);
       delete countdownIntervals[member.user.id];
-      listaram.splice(existingUserIndex, 1);
-      console.log("Gỡ người dùng khỏi list:", listaram);
+      listcusaram.splice(existingUserIndex, 1);
+      console.log("Gỡ người dùng khỏi list:", listcusaram);
     }
 
     const timeEnd = Date.now() + timewait * 60000;
     const initialTimeAx = `\`${Math.floor(timewait)} phút\``;
     let descriptions = [
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
       "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
@@ -222,11 +224,11 @@ module.exports = {
 
       "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
       "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
 
       "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
     ];
@@ -333,7 +335,7 @@ module.exports = {
       return;
     }
     const timeDelayCommand = Date.now();
-    listaram.push({
+    listcusaram.push({
       userId: member.user.id,
       guildId: context.guild.id,
       user: member.user.tag,
@@ -352,7 +354,6 @@ module.exports = {
       timeZ: timeDelayCommand,
     });
 
-    console.log(countdownIntervals);
     if (countdownIntervals[member.user.id]) {
       clearInterval(countdownIntervals[member.user.id]);
     }
@@ -364,5 +365,5 @@ module.exports = {
   handleVoiceStateUpdate,
 };
 
-module.exports.listaram = listaram;
+module.exports.listcusaram = listcusaram;
 module.exports.countdownIntervals = countdownIntervals;

@@ -1,8 +1,8 @@
-require('dotenv').config();
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-const { Sequelize, DataTypes } = require('sequelize'); //data tiền tệ
+require("dotenv").config();
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
+const { Sequelize, DataTypes } = require("sequelize"); //data tiền tệ
 
 const token = process.env.token;
 const prefix = process.env.PREFIX;
@@ -14,13 +14,12 @@ const client = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMessageReactions // Intents cần thiết để đọc nội dung tin nhắn
-  ]
+    GatewayIntentBits.GuildMessageReactions, // Intents cần thiết để đọc nội dung tin nhắn
+  ],
 });
 
 client.commands = new Collection();
 client.commandArray = [];
-
 
 // Thiết lập SQLite thông qua Sequelize
 // const sequelize = new Sequelize({
@@ -44,60 +43,60 @@ client.commandArray = [];
 //   },
 // });
 
-client.once('ready', () => {
+client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('messageCreate', async message => {
+client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const commandName = args.shift().toLowerCase();
 
-  console.log('Command Name:', commandName);
-  console.log('Args:', args);
+  console.log("Command Name:", commandName);
+  console.log("Args:", args);
 
-// tự nhân diện guild
-client.on('guildCreate', guild => {
+  // tự nhân diện guild
+  client.on("guildCreate", (guild) => {
     console.log(`Joined a new guild: ${guild.name} (${guild.id})`);
     updateEnvFile(guild.id);
-});
+  });
 
-function updateEnvFile(guildId) {
-    const envPath = './.env';
-    const envContent = fs.readFileSync(envPath, 'utf-8');
+  function updateEnvFile(guildId) {
+    const envPath = "./.env";
+    const envContent = fs.readFileSync(envPath, "utf-8");
     const guildIdPattern = /^GUILD_ID=.*$/m;
 
     let newEnvContent;
     if (envContent.match(guildIdPattern)) {
-        newEnvContent = envContent.replace(guildIdPattern, `GUILD_ID=${guildId}`);
+      newEnvContent = envContent.replace(guildIdPattern, `GUILD_ID=${guildId}`);
     } else {
-        newEnvContent = `${envContent}\nGUILD_ID=${guildId}`;
+      newEnvContent = `${envContent}\nGUILD_ID=${guildId}`;
     }
 
-    fs.writeFileSync(envPath, newEnvContent, 'utf-8');
-    console.log('Updated .env file with new guild ID.');
-}
-// 1111
+    fs.writeFileSync(envPath, newEnvContent, "utf-8");
+    console.log("Updated .env file with new guild ID.");
+  }
+  // 1111
 
   const command = client.commands.get(commandName);
   if (!command) return;
 
   try {
     const context = {
-        isCommand: true,
-        options: {
-          getString: (index) => {
-            return args[index] || null;
-          },
-          getInteger: (index) => {
-            const value = args[index];
-            return value ? parseInt(value, 10) : null;
-          },
-          // Add more methods if needed, similar to getString and getInteger
+      isCommand: true,
+      options: {
+        getString: (index) => {
+          return args[index] || null;
+        },
+        getInteger: (index) => {
+          const value = args[index];
+          return value ? parseInt(value, 10) : null;
+        },
+        // Add more methods if needed, similar to getString and getInteger
       },
       reply: async (msg) => await message.reply(msg),
-      deferReply: async () => {},
+      deferReply: async () => { },
       editReply: async (msg) => await message.edit(msg),
       // User: User // Thêm User vào context
     };
@@ -105,19 +104,40 @@ function updateEnvFile(guildId) {
     await command.execute(context);
   } catch (error) {
     console.error(error);
-    message.reply('Không xài được lệnh này đâu ní ơi :(');
+    message.reply("Không xài được lệnh này đâu ní ơi :(");
   }
 });
-// Đăng ký sự kiện voiceStateUpdate
-const aram = require('./commands/tools/aram');
-client.on('voiceStateUpdate', aram.handleVoiceStateUpdate);
 
+// Import các module
+const { listaram } = require("./commands/tools/aram");
+const aram = require("./commands/tools/aram");
+const { listcusaram } = require("./commands/tools/cusaram");
+const cusaram = require("./commands/tools/cusaram");
+
+// Điều kiện kiểm tra cho cusaram
+function isEvent(oldState, newState, list) {
+  // Ví dụ: kiểm tra nếu người dùng đang ở trong danh sách của cusaram
+  return list && list.findIndex((item) => item.userId === oldState.id) == 0;
+}
+
+// Hàm trung gian để xử lý sự kiện voiceStateUpdate
+client.on("voiceStateUpdate", (oldState, newState) => {
+  // Gọi hàm xử lý của module aram nếu điều kiện kiểm tra đúng
+  if (isEvent(oldState, newState, listaram)) {
+    aram.handleVoiceStateUpdate(oldState, newState);
+  }
+
+  // Gọi hàm xử lý của module cusaram nếu điều kiện kiểm tra đúng
+  if (isEvent(oldState, newState, listcusaram)) {
+    cusaram.handleVoiceStateUpdate(oldState, newState);
+  }
+});
 
 const functionFolders = fs.readdirSync(`./src/functions`);
 for (const folder of functionFolders) {
   const functionFiles = fs
     .readdirSync(`./src/functions/${folder}`)
-    .filter(file => file.endsWith('.js'));
+    .filter((file) => file.endsWith(".js"));
   for (const file of functionFiles) {
     require(`./functions/${folder}/${file}`)(client); // Đảm bảo đường dẫn đúng
   }
@@ -125,4 +145,3 @@ for (const folder of functionFolders) {
 client.handleEvents();
 client.handleCommands();
 client.login(token);
-
