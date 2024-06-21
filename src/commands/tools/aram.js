@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, Permissions } = require('discord.js');
+const { combinedList } = require("./listaram");
 
 let listaram = [];
 let countdownIntervals = {};
@@ -14,36 +15,37 @@ function removePlayerFromList(userId) {
 }
 
 async function updateEmbed(message, timeEnd, userId) {
-  const remainingTime = timeEnd - Date.now();
+  let remainingTime = timeEnd - Date.now()
 
   let newTimeAx;
+  // const shouldStop = listaram.findIndex(item => item.userId === userId);
+  // if (!shouldStop) {
   if (remainingTime > 0) {
-    const minutes = Math.floor(remainingTime / 60000);
-    const seconds = Math.floor((remainingTime % 60000) / 1000);
+    console.log(remainingTime);
+    // const minutes = Math.floor(remainingTime / 60000);
+    // const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-    if (remainingTime < 60000) {
-      newTimeAx = `\`${seconds} giây\``;
-    } else {
-      newTimeAx = `\`${minutes} phút\``;
-    }
+    // if (remainingTime < 60000) {
+    //   newTimeAx = `\`${seconds} giây\``;
+    // } else {
+    //   newTimeAx = `\`${minutes} phút\``;
+    // }
 
-    if (message.embeds[0].fields[1].value !== newTimeAx) {
-      const updatedEmbed = EmbedBuilder.from(message.embeds[0])
-        .spliceFields(1, 1, { name: 'Thời gian chờ', value: newTimeAx, inline: true });
+    // if (message.embeds[0].fields[1].value !== newTimeAx) {
+    //   // const updatedEmbed = EmbedBuilder.from(message.embeds[0])
+    //   //   .spliceFields(1, 1, { name: 'Thời gian chờ', value: newTimeAx, inline: true });
 
-      try {
-        const shouldStop = !listaram.findIndex(item => item.userId === userId);
-        if (!shouldStop) {
-          await message.edit({ embeds: [updatedEmbed] });
-        }
-      } catch (error) {
-        console.error('Failed to update message:', error);
-        clearInterval(countdownIntervals[userId]);
-        delete countdownIntervals[userId];
-        removePlayerFromList(userId);
-      }
-    }
+    //   try {
+    //     await message.edit({ embeds: [updatedEmbed] });
+    //   } catch (error) {
+    //     console.error('Failed to update message:', error);
+    //     clearInterval(countdownIntervals[userId]);
+    //     delete countdownIntervals[userId];
+    //     removePlayerFromList(userId);
+    //   }
+    // }
   } else {
+    // if (remainingTime <= 0) {
     clearInterval(countdownIntervals[userId]);
     delete countdownIntervals[userId];
     removePlayerFromList(userId);
@@ -58,7 +60,8 @@ async function updateEmbed(message, timeEnd, userId) {
       console.error('Failed to update message:', error);
     }
   }
-
+  // }
+  // }
 }
 
 async function handleUserLeftVoiceChannel(userId, oldState, newState) {
@@ -151,7 +154,8 @@ module.exports = {
     const voiceChannelLink = `https://discord.com/channels/${interaction.guild.id}/${VCID}`;
     const roleId = '1249209211175440384';
 
-    const existingUserInVC = listaram.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
+    const existingUserInVC = combinedList.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
+    console.log(combinedList)
     if (existingUserInVC) {
       await interaction.reply({ content: 'Đã có người trong room xài lệnh /aram.', ephemeral: true });
       return;
@@ -168,7 +172,9 @@ module.exports = {
 
 
     const timeEnd = Date.now() + timewait * 60000;
-    const initialTimeAx = `\`${Math.floor(timewait)} phút\``;
+    // const initialTimeAx = `\`${Math.floor(timewait)} phút\``;
+    const initialTimeAx = `<t:${Math.floor(timeEnd / 1000)}:R>`
+
     let descriptions = [
       '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>',
 
@@ -206,12 +212,12 @@ module.exports = {
     if (voiceType === 'public') {
       embed.addFields([
         { name: `𝑃𝑢𝑏𝑙𝑖𝑐 𝑉𝑜𝑖𝑐𝑒`, value: `${voiceChannelLink}`, inline: false },
-        { name: `Thời gian chờ`, value: initialTimeAx, inline: true },
+        { name: `Thời gian chờ`, value: `<t:${Math.floor(timeEnd / 1000)}:R>`, inline: true },
         { name: `◜Slots◝`, value: `**◟[${slots}/5]◞**`, inline: true }
       ]);
     } else {
       embed.addFields([
-        { name: `Thời gian chờ`, value: initialTimeAx, inline: true },
+        { name: `Thời gian chờ`, value: `<t:${Math.floor(timeEnd / 1000)}:R>`, inline: true },
         { name: `◜Slots◝`, value: `**◟[${slots}/5]◞**`, inline: true }
       ]);
     }// Kiểm tra timeEscapeEnd và cập nhật hành vi của lệnh
@@ -219,7 +225,7 @@ module.exports = {
 
 
     } else {
-      await interaction.channel.send(`1`); //<@&${process.env.ARAM_ID}>
+      await interaction.channel.send(`<@&${process.env.ARAM_ID}>`);
       timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
       // Đặt thời gian kết thúc cho 12 giờ tiếp theo
     }
@@ -269,14 +275,13 @@ module.exports = {
     countdownIntervals[member.user.id] = setInterval(() => {
       updateEmbed(message, timeEnd, member.user.id);
     }, 1000);
+
   },
   handleVoiceStateUpdate,
   handleUserLeftVoiceChannel,
   updateEmbed,
   removePlayerFromList,
-  listaram,
-  countdownIntervals,
 };
 
-// module.exports.listaram = listaram;
+module.exports.listaram = listaram;
 // module.exports.countdownIntervals = countdownIntervals;

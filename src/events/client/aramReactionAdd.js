@@ -2,9 +2,10 @@ const { listaram } = require('../../commands/tools/aram');
 const { listcusaram } = require('../../commands/tools/cusaram');
 const { countdownIntervals } = require('../../commands/tools/aram');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, channelLink } = require('discord.js');
+const { listtft } = require('../../commands/tools/tft');
 
 module.exports = {
-  name: 'messageReactionAdd',
+  name: 'aramReactionAdd',
   async execute(reaction, user) {
 
     // Ignore reactions from bots
@@ -77,7 +78,7 @@ module.exports = {
               let targetUser = await interaction.guild.members.fetch(user.id);
 
               // Check if the user is valid and move them to the voice channel
-              if (targetUser) {
+              if (targetUser && targetUser.voice.channels) {
                 await targetUser.voice.setChannel(voiceChannelId);
               }
 

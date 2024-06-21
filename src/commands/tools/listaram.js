@@ -1,7 +1,25 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder } = require("discord.js");
-
 const PLAYERS_PER_PAGE = 10; // Số lượng người chơi mỗi trang
+// Cập nhật biến listaram động
+const { listaram } = require("./aram");
+const { listcusaram } = require("./cusaram");
+let combinedList = []
+
+// Kết hợp hai mảng listaram lại với nhau
+if (Array.isArray(listaram) && Array.isArray(listcusaram)) {
+  combinedList = [...listaram, ...listcusaram];
+
+  // Sắp xếp danh sách theo timeEnd
+  combinedList.sort((a, b) => a.timeEnd - b.timeEnd);
+
+  // Loại bỏ các người chơi có cùng userId và timeZ nhỏ hơn
+  combinedList = combinedList.filter(
+    (player, index, self) =>
+      index ===
+      self.findIndex((p) => p.userId === player.userId && p.timeZ >= 0)
+  );
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -15,23 +33,6 @@ module.exports = {
     ),
 
   async execute(context) {
-    // Cập nhật biến listaram động
-    const { listaram } = require("../../commands/tools/aram");
-    const { listcusaram } = require("../../commands/tools/cusaram");
-
-    // Kết hợp hai mảng listaram lại với nhau
-    let combinedList = [...listaram, ...listcusaram];
-
-    // Sắp xếp danh sách theo timeEnd
-    combinedList.sort((a, b) => a.timeEnd - b.timeEnd);
-
-    // Loại bỏ các người chơi có cùng userId và timeZ nhỏ hơn
-    combinedList = combinedList.filter(
-      (player, index, self) =>
-        index ===
-        self.findIndex((p) => p.userId === player.userId && p.timeZ >= 0)
-    );
-
     const guildId = context.guild.id;
     let page = context.options.getInteger("page") || 1; // Trang mặc định là trang 1
 
@@ -106,3 +107,5 @@ module.exports = {
     await context.reply({ embeds: [embed] });
   },
 };
+
+module.exports.combinedList = combinedList

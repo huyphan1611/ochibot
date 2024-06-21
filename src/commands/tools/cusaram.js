@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder, Permissions } = require("discord.js");
-// const { listcusaram } = require("../../commands/tools/aram");
+const { combinedList } = require("./listaram");
 
 let listcusaram = [];
 let countdownIntervals = {};
@@ -17,51 +17,53 @@ async function updateEmbed(message, timeEnd, userId) {
   const remainingTime = timeEnd - Date.now();
 
   let newTimeAx;
+  const shouldStop = listcusaram.findIndex(item => item.userId === userId);
+  if (!shouldStop) {
+    if (remainingTime > 0) {
+      // console.log(timeEnd);
+      const minutes = Math.floor(remainingTime / 60000);
+      const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-  if (remainingTime > 0) {
-    // console.log(timeEnd);
-    const minutes = Math.floor(remainingTime / 60000);
-    const seconds = Math.floor((remainingTime % 60000) / 1000);
+      if (remainingTime < 60000) {
+        newTimeAx = `\`${seconds} giây\``;
+      } else {
+        newTimeAx = `\`${minutes} phút\``;
+      }
 
-    if (remainingTime < 60000) {
-      newTimeAx = `\`${seconds} giây\``;
+      if (message && message.embeds[0].fields[1].value !== newTimeAx) {
+        const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
+          1,
+          1,
+          { name: "Thời gian chờ", value: newTimeAx, inline: true }
+        );
+        try {
+          const shouldStop = !listcusaram.findIndex(item => item.userId === userId);
+          if (!shouldStop) {
+            await message.edit({ embeds: [updatedEmbed] });
+          }
+        } catch (error) {
+          console.error("Failed to update message:", error);
+          clearInterval(countdownIntervals[userId]);
+          delete countdownIntervals[userId];
+          removePlayerFromList(userId);
+        }
+      }
     } else {
-      newTimeAx = `\`${minutes} phút\``;
-    }
+      clearInterval(countdownIntervals[userId]);
+      delete countdownIntervals[userId];
+      removePlayerFromList(userId);
 
-    if (message && message.embeds[0].fields[1].value !== newTimeAx) {
       const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
         1,
         1,
-        { name: "Thời gian chờ", value: newTimeAx, inline: true }
+        { name: "Thời gian chờ", value: "`Đã vào trận`", inline: true }
       );
+
       try {
-        const shouldStop = !listcusaram.findIndex(item => item.userId === userId);
-        if (!shouldStop) {
-          await message.edit({ embeds: [updatedEmbed] });
-        }
+        await message.edit({ embeds: [updatedEmbed] });
       } catch (error) {
         console.error("Failed to update message:", error);
-        clearInterval(countdownIntervals[userId]);
-        delete countdownIntervals[userId];
-        removePlayerFromList(userId);
       }
-    }
-  } else {
-    clearInterval(countdownIntervals[userId]);
-    delete countdownIntervals[userId];
-    removePlayerFromList(userId);
-
-    const updatedEmbed = EmbedBuilder.from(message.embeds[0]).spliceFields(
-      1,
-      1,
-      { name: "Thời gian chờ", value: "`Đã vào trận`", inline: true }
-    );
-
-    try {
-      await message.edit({ embeds: [updatedEmbed] });
-    } catch (error) {
-      console.error("Failed to update message:", error);
     }
   }
 }
@@ -190,14 +192,15 @@ module.exports = {
     const voiceChannelLink = `https://discord.com/channels/${context.guild.id}/${VCID}`;
     const roleId = "1249209211175440384";
 
-    const existingUserInVC = listcusaram.find(
+    const existingUserInVC = combinedList.find(
       (player) =>
         player.voiceChannelLink === voiceChannelLink &&
         player.userId !== member.user.id
     );
+    console.log(combinedList)
     if (existingUserInVC) {
       await context.reply({
-        content: "Đã có người trong room xài lệnh /aram.",
+        content: "Đã có người trong room xài lệnh /cusaram.",
         ephemeral: true,
       });
       return;
@@ -363,6 +366,7 @@ module.exports = {
     }, 1000);
   },
   handleVoiceStateUpdate,
+  listcusaram,
 };
 
 module.exports.listcusaram = listcusaram;
