@@ -1,8 +1,7 @@
-const { listaram } = require('../../commands/tools/aram');
-const { listcusaram } = require('../../commands/tools/cusaram');
 const { countdownIntervals } = require('../../commands/tools/aram');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, channelLink } = require('discord.js');
 const { listtft } = require('../../commands/tools/tft');
+const GameMatchesManager = require("../../globalManager/gameMatchesManager")
 
 module.exports = {
   name: 'aramReactionAdd',
@@ -14,8 +13,9 @@ module.exports = {
     // Get the message the reaction is added to
     const message = reaction.message;
 
+    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
     // Check if the message is in the listaram or listcusaram and within the waiting time
-    const player = listaram.find(item => item.messageId === message.id) || listaram.find(item => item.messageId === message.id);
+    const player = allAvailableMatches.find(item => item.messageId === message.id) || allAvailableMatches.find(item => item.messageId === message.id);
 
     if (player) {
       if (user.id === player.commandUserId) {

@@ -2,24 +2,7 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder } = require("discord.js");
 const PLAYERS_PER_PAGE = 10; // Số lượng người chơi mỗi trang
 // Cập nhật biến listaram động
-const { listaram } = require("./aram");
-const { listcusaram } = require("./cusaram");
-let combinedList = []
-
-// Kết hợp hai mảng listaram lại với nhau
-if (Array.isArray(listaram) && Array.isArray(listcusaram)) {
-  combinedList = [...listaram, ...listcusaram];
-
-  // Sắp xếp danh sách theo timeEnd
-  combinedList.sort((a, b) => a.timeEnd - b.timeEnd);
-
-  // Loại bỏ các người chơi có cùng userId và timeZ nhỏ hơn
-  combinedList = combinedList.filter(
-    (player, index, self) =>
-      index ===
-      self.findIndex((p) => p.userId === player.userId && p.timeZ >= 0)
-  );
-}
+const GameMatchesManager = require("../../globalManager/gameMatchesManager");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -33,11 +16,13 @@ module.exports = {
     ),
 
   async execute(context) {
+    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
+
     const guildId = context.guild.id;
-    let page = context.options.getInteger("page") || 1; // Trang mặc định là trang 1
+    const page = context.options.getInteger("page") || 1; // Trang mặc định là trang 1
 
     // Lấy danh sách người chơi cùng guild
-    const listguildaram = combinedList.filter(
+    const listguildaram = allAvailableMatches.filter(
       (player) => player.guildId === guildId
     );
 
@@ -85,7 +70,8 @@ module.exports = {
       // Thêm phần hiển thị số trang và nút chuyển trang nếu cần
       if (listguildaram.length > PLAYERS_PER_PAGE) {
         embed.setFooter(
-          `Trang ${page} | ${startIndex + 1}-${endIndex > listguildaram.length ? listguildaram.length : endIndex
+          `Trang ${page} | ${startIndex + 1}-${
+            endIndex > listguildaram.length ? listguildaram.length : endIndex
           }/${listguildaram.length}`
         );
 
@@ -107,5 +93,3 @@ module.exports = {
     await context.reply({ embeds: [embed] });
   },
 };
-
-module.exports.combinedList = combinedList

@@ -1,10 +1,12 @@
 const { EmbedBuilder } = require("discord.js");
-let { listaram } = require("../../commands/tools/aram"); // Chuyển từ const sang let
+const GameMatchesManager = require("../../globalManager/gameMatchesManager")
 
 module.exports = (client) => {
   const checkWaitingList = () => {
     const now = Date.now();
-    listaram = listaram.filter((player) => {
+    let aramMatches = GameMatchesManager.getAramMatches();
+
+    aramMatches = aramMatches.filter((player) => {
       const guild = client.guilds.cache.get(player.guildId);
       if (!guild) return false;
 
@@ -19,6 +21,8 @@ module.exports = (client) => {
 
       return true;
     });
+    
+    GameMatchesManager.setAramMatches(aramMatches);
 
     setTimeout(checkWaitingList, 60000); // Schedule next check in 60 seconds
   };

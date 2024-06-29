@@ -1,15 +1,16 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, Permissions } = require('discord.js');
-const { combinedList } = require("./listaram");
+const GameMatchesManager = require('../../globalManager/gameMatchesManager')
 
-let listaram = [];
 let countdownIntervals = {};
 let timeEscapeEnd = null; // Biến toàn cục để lưu trữ thời gian kết thúc của timeEscape
 
 function removePlayerFromList(userId) {
-  const index = listaram.findIndex(player => player.userId === userId);
+  const aramMatches = GameMatchesManager.getAramMatches();
+
+  const index = aramMatches.findIndex(player => player.userId === userId);
   if (index !== -1) {
-    listaram.splice(index, 1);
+    aramMatches.splice(index, 1);
 
   }
 }
@@ -21,7 +22,6 @@ async function updateEmbed(message, timeEnd, userId) {
   // const shouldStop = listaram.findIndex(item => item.userId === userId);
   // if (!shouldStop) {
   if (remainingTime > 0) {
-    console.log(remainingTime);
     // const minutes = Math.floor(remainingTime / 60000);
     // const seconds = Math.floor((remainingTime % 60000) / 1000);
 
@@ -65,13 +65,15 @@ async function updateEmbed(message, timeEnd, userId) {
 }
 
 async function handleUserLeftVoiceChannel(userId, oldState, newState) {
+  const aramMatches = GameMatchesManager.getAramMatches();
+
   clearInterval(countdownIntervals[userId]);
   delete countdownIntervals[userId];
 
-  const userIndex = listaram.findIndex(item => item.userId === userId);
+  const userIndex = aramMatches.findIndex(item => item.userId === userId);
   if (userIndex !== -1) {
-    const user = listaram[userIndex];
-    listaram.splice(userIndex, 1);
+    const user = aramMatches[userIndex];
+    aramMatches.splice(userIndex, 1);
 
     const channel = await oldState.guild.channels.fetch(user.channelId);
     const message = await channel.messages.fetch(user.messageId);
@@ -93,10 +95,12 @@ async function handleUserLeftVoiceChannel(userId, oldState, newState) {
 }
 
 async function handleVoiceStateUpdate(oldState, newState) {
-  if (oldState.channelId && oldState.channelId !== newState.channelId) {
-    const userInListaram = listaram.find(item => item.userId === oldState.id);
+  const aramMatches = GameMatchesManager.getAramMatches();
 
-    if (userInListaram && userInListaram.voiceChannelLink.includes(oldState.channelId)) {
+  if (oldState.channelId && oldState.channelId !== newState.channelId) {
+    const userInAramMatches = aramMatches.find(item => item.userId === oldState.id);
+
+    if (userInAramMatches && userInAramMatches.voiceChannelLink.includes(oldState.channelId)) {
       await handleUserLeftVoiceChannel(oldState.id, oldState, newState);
     }
   }
@@ -129,6 +133,9 @@ module.exports = {
         )),
 
   async execute(interaction, client) { // thằng này phải là interaction, client chứ????
+    const aramMatches = GameMatchesManager.getAramMatches();
+    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
+
     let VCID = null;
     let member;
     const slots = interaction.options.getInteger('slots');
@@ -154,19 +161,18 @@ module.exports = {
     const voiceChannelLink = `https://discord.com/channels/${interaction.guild.id}/${VCID}`;
     const roleId = '1249209211175440384';
 
-    const existingUserInVC = combinedList.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
-    console.log(combinedList)
+    const existingUserInVC = allAvailableMatches.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
     if (existingUserInVC) {
       await interaction.reply({ content: 'Đã có người trong room xài lệnh /aram.', ephemeral: true });
       return;
     }
 
 
-    const existingUserIndex = listaram.findIndex(player => player.userId === member.user.id);
+    const existingUserIndex = aramMatches.findIndex(player => player.userId === member.user.id);
     if (existingUserIndex !== -1) {
       clearInterval(countdownIntervals[member.user.id]);
       delete countdownIntervals[member.user.id];
-      listaram.splice(existingUserIndex, 1);
+      aramMatches.splice(existingUserIndex, 1);
 
     }
 
@@ -249,7 +255,8 @@ module.exports = {
       return;
     }
     const timeDelayCommand = Date.now()
-    listaram.push({
+
+    GameMatchesManager.addAramMatch({
       userId: member.user.id,
       guildId: interaction.guild.id,
       user: member.user.tag,
@@ -283,5 +290,4 @@ module.exports = {
   removePlayerFromList,
 };
 
-module.exports.listaram = listaram;
 // module.exports.countdownIntervals = countdownIntervals;

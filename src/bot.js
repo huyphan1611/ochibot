@@ -109,10 +109,9 @@ client.on("messageCreate", async (message) => {
 });
 
 // Import các module
-const { listaram } = require("./commands/tools/aram");
 const aram = require("./commands/tools/aram");
-const { listcusaram } = require("./commands/tools/cusaram");
 const cusaram = require("./commands/tools/cusaram");
+const GameMatchesManager = require("./globalManager/gameMatchesManager")
 
 // Điều kiện kiểm tra cho cusaram
 function isEvent(oldState, newState, list) {
@@ -122,13 +121,16 @@ function isEvent(oldState, newState, list) {
 
 // Hàm trung gian để xử lý sự kiện voiceStateUpdate
 client.on("voiceStateUpdate", (oldState, newState) => {
+  const aramMatches = GameMatchesManager.getAramMatches();
+  const customAramMatches = GameMatchesManager.getCustomAramMatches();
+
   // Gọi hàm xử lý của module aram nếu điều kiện kiểm tra đúng
-  if (isEvent(oldState, newState, listaram)) {
+  if (isEvent(oldState, newState, aramMatches)) {
     aram.handleVoiceStateUpdate(oldState, newState);
   }
 
   // Gọi hàm xử lý của module cusaram nếu điều kiện kiểm tra đúng
-  if (isEvent(oldState, newState, listcusaram)) {
+  if (isEvent(oldState, newState, customAramMatches)) {
     cusaram.handleVoiceStateUpdate(oldState, newState);
   }
 });
