@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder } = require("discord.js");
 const PLAYERS_PER_PAGE = 10; // Số lượng người chơi mỗi trang
-const { getListTFT } = require("./listtft");
+const GameMatchesManager = require("../../globalManager/gameMatchesManager")
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,11 +15,12 @@ module.exports = {
         ),
 
     async execute(context) {
+        const tftMatches = GameMatchesManager.getTFTMatches();
         const guildId = context.guild.id;
         let page = context.options.getInteger("page") || 1; // Trang mặc định là trang 1
 
         // Lấy danh sách người chơi cùng guild
-        const listguildtft = getListTFT().filter(
+        const listguildtft = tftMatches.filter(
             (player) => player.guildId === guildId
         );
 

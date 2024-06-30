@@ -16,7 +16,7 @@ module.exports = {
     ),
 
   async execute(context) {
-    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
+    const allAvailableMatches = GameMatchesManager.getAllAvailableAramMatches();
 
     const guildId = context.guild.id;
     const page = context.options.getInteger("page") || 1; // Trang mặc định là trang 1

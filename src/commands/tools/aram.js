@@ -134,7 +134,7 @@ module.exports = {
 
   async execute(interaction, client) { // thằng này phải là interaction, client chứ????
     const aramMatches = GameMatchesManager.getAramMatches();
-    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
+    const allAvailableMatches = GameMatchesManager.getAllAvailableAramMatches();
 
     let VCID = null;
     let member;

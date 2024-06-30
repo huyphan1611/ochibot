@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, Permissions } = require('discord.js');
-const { getListTFT, addPlayerTFT, removePlayerTFT, listtft } = require("./listtft");
+const GameMatchesManager = require("../../globalManager/gameMatchesManager")
 
 
 let countdownIntervals = {};
@@ -102,7 +102,7 @@ module.exports = {
                 )),
 
     async execute(interaction, client) {
-
+        const tftMatches = GameMatchesManager.getTFTMatches();
 
         let VCID = null;
         let member;
@@ -129,8 +129,8 @@ module.exports = {
         const voiceChannelLink = `https://discord.com/channels/${interaction.guild.id}/${VCID}`;
         const roleId = '1249209211175440384';
 
-        if (getListTFT) {
-            const existingUserInVC = listtft.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
+        if (tftMatches) {
+            const existingUserInVC = tftMatches.find(player => player.voiceChannelLink === voiceChannelLink && player.userId !== member.user.id);
 
             if (existingUserInVC) {
                 await interaction.reply({ content: 'Đã có người trong room xài lệnh /tft.', ephemeral: true });
@@ -139,11 +139,11 @@ module.exports = {
 
 
 
-            const existingUserIndex = listtft.findIndex(player => player.userId === member.user.id);
+            const existingUserIndex = tftMatches.findIndex(player => player.userId === member.user.id);
             if (existingUserIndex !== -1) {
                 clearInterval(countdownIntervals[member.user.id]);
                 delete countdownIntervals[member.user.id];
-                removePlayerTFT(existingUserIndex);
+                tftMatches.splice(existingUserIndex, 1);
 
             }
         }
@@ -228,7 +228,7 @@ module.exports = {
 
         const timeDelayCommand = Date.now()
         // Ví dụ về cách thêm người chơi vào listtft
-        addPlayerTFT({
+        GameMatchesManager.addTFTMatch({
             userId: member.user.id,
             guildId: interaction.guild.id,
             user: member.user.tag,
@@ -245,7 +245,7 @@ module.exports = {
             voiceType: voiceType,
             type: 'TFT',
             timeZ: timeDelayCommand
-        });
+        })
 
         if (countdownIntervals[member.user.id]) {
             clearInterval(countdownIntervals[member.user.id]);

@@ -1,10 +1,9 @@
 const { countdownIntervals } = require('../../commands/tools/aram');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, channelLink } = require('discord.js');
-const { listtft } = require('../../commands/tools/tft');
 const GameMatchesManager = require("../../globalManager/gameMatchesManager")
 
 module.exports = {
-  name: 'aramReactionAdd',
+  name: 'messageReactionAdd',
   async execute(reaction, user) {
 
     // Ignore reactions from bots
@@ -16,7 +15,7 @@ module.exports = {
     const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
     // Check if the message is in the listaram or listcusaram and within the waiting time
     const player = allAvailableMatches.find(item => item.messageId === message.id) || allAvailableMatches.find(item => item.messageId === message.id);
-
+    
     if (player) {
       if (user.id === player.commandUserId) {
         try {
@@ -72,13 +71,14 @@ module.exports = {
           const collector = responseMessage.createMessageComponentCollector({ filter, max: 1, time: 60000 });
 
           collector.on('collect', async interaction => {
+
             if (interaction.customId === 'accept') {
 
               // Fetch the target user's GuildMember object
               let targetUser = await interaction.guild.members.fetch(user.id);
 
               // Check if the user is valid and move them to the voice channel
-              if (targetUser && targetUser.voice.channels) {
+              if (targetUser) {
                 await targetUser.voice.setChannel(voiceChannelId);
               }
 
@@ -87,6 +87,7 @@ module.exports = {
 
               // Grant the user permissions to view and speak in the voice channel if the type is 'hidden'
               if (player.voiceType === 'hidden') {
+
                 const voiceChannel = await reaction.message.guild.channels.fetch(voiceChannelId);
                 if (!voiceChannel) {
                   console.error('Failed to fetch voice channel.');

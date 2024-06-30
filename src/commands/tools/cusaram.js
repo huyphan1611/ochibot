@@ -163,7 +163,7 @@ module.exports = {
     
   async execute(context) {
     const customAramMatches = GameMatchesManager.getCustomAramMatches();
-    const allAvailableMatches = GameMatchesManager.getAllAvailableMatches();
+    const allAvailableMatches = GameMatchesManager.getAllAvailableAramMatches();
 
     let VCID = null;
     let member;
