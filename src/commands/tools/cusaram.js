@@ -131,7 +131,7 @@ module.exports = {
     .addIntegerOption((option) =>
       option
         .setName("slots")
-        .setDescription("Số lượng slot cần")
+        .setDescription("Số lượng slot đang có")
         .setRequired(true)
         .addChoices(
           { name: "1", value: 1 },
@@ -160,7 +160,7 @@ module.exports = {
           { name: "Công khai", value: "public" }
         )
     ),
-    
+
   async execute(context) {
     const customAramMatches = GameMatchesManager.getCustomAramMatches();
     const allAvailableMatches = GameMatchesManager.getAllAvailableAramMatches();
@@ -225,21 +225,21 @@ module.exports = {
     const timeEnd = Date.now() + timewait * 60000;
     const initialTimeAx = `\`${Math.floor(timewait)} phút\``;
     let descriptions = [
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Đang kết nối • Game Group • Bíp...Bíp...*\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Cổng kết nối số...được...kích...hoạt...*\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *O...ro....zi...iii...* (⁠｡⁠ŏ⁠﹏⁠ŏ⁠)\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Xin hãy kiên nhẫn • Đang có chút trục trặc...O..zi...(⁠´⁠-⁠﹏⁠-⁠`⁠；⁠)\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ngồi xuống nhâm nhi 1 tách trà đi*\n > *Tôi sẽ tìm được cho bạn ngay thôi*\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Hệ thống Game Group •\n> Xin chào bạn! ♪*\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Lệnh `/listcusaram` dùng để xem danh sách.*\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Ting•ting•ting•♪♪♪* (⁠ꏿ⁠﹏⁠ꏿ⁠;⁠)\n<:oz_curvedlinea:1251414265819168768>',
 
-      "<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>\n\n\n<a:oz_check:1251400672675631205> : *Click vào <:oz_cong1:1250524901287264407> phía dưới để * ***gửi yêu cầu tham gia.***\n<a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314><a:oz_rocket:1251414424422580314>",
+      '<:oz_curvedlineb:1251414270231449730>\n> <:OziPNG:1251519928893308949>: *Vui lòng chờ!\n> Có kẻ đang xâm nhập tường lửa •*\n> (⁠╬⁠☉⁠д⁠⊙⁠)⁠⊰⁠⊹ฺ\n<:oz_curvedlinea:1251414265819168768>'
     ];
 
     // Hàm để lấy một phần tử ngẫu nhiên từ mảng
@@ -250,77 +250,29 @@ module.exports = {
 
     const randomDescription = getRandomDescription(descriptions);
 
-    let embed;
-    if (voiceType === "public") {
-      embed = new EmbedBuilder()
-        .setTitle("<:oz_play:1251569356412813394> 𝗖𝗨𝗦𝗧𝗢𝗠 𝗔𝗥𝗔𝗠 ")
-        .setDescription(randomDescription)
-
-        .setThumbnail(
-          "https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385"
-        )
-        .setColor("#1cf1ef")
-        .setAuthor({
-          name: `${member.user.username} đang tìm kiếm đồng đội`,
-          iconURL: member.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setTimestamp(Date.now())
-        .setFooter({
-          text: "Connected",
-          iconURL:
-            "https://cdn.discordapp.com/attachments/1249448980258226249/1251506086310318131/oz_on.png?ex=666ed35e&is=666d81de&hm=8edb196bc4e73337bf411ca60f18d0793b7a57e554cc21c7ba4875fa3290ddc9&",
-        })
-        .addFields([
-          {
-            name: `𝑃𝑢𝑏𝑙𝑖𝑐 𝑉𝑜𝑖𝑐𝑒`,
-            value: `${voiceChannelLink}`,
-            inline: false,
-          },
-          {
-            name: `Thời gian chờ`,
-            value: initialTimeAx,
-            inline: true,
-          },
-          {
-            name: `◜Slots ◝`,
-            value: `**◟[${slots}/10]◞**`,
-            inline: true,
-          },
-        ]);
+    let embed = new EmbedBuilder()
+      .setTitle('<:oz_play:1251569356412813394> 𝗖𝗨𝗦𝗧𝗢𝗠 𝗔𝗥𝗔𝗠 ')
+      .setDescription(randomDescription)
+      .setThumbnail('https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385')
+      .setColor('#0B88C3')
+      .setAuthor({ name: `${member.user.username} đang tìm kiếm đồng đội`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
+      .setTimestamp(Date.now())
+      .setFooter({ text: 'Connected', iconURL: 'https://cdn.discordapp.com/attachments/1249448980258226249/1251506086310318131/oz_on.png?ex=666ed35e&is=666d81de&hm=8edb196bc4e73337bf411ca60f18d0793b7a57e554cc21c7ba4875fa3290ddc9&' });
+    if (voiceType === 'public') {
+      embed.addFields([
+        { name: `𝑃𝑢𝑏𝑙𝑖𝑐 𝑉𝑜𝑖𝑐𝑒`, value: `${voiceChannelLink}`, inline: false },
+        { name: `Thời gian chờ`, value: `<t:${Math.floor(timeEnd / 1000)}:R>`, inline: true },
+        { name: `◜Slots◝`, value: `**◟[${slots}/10]◞**`, inline: true }
+      ]);
     } else {
-      embed = new EmbedBuilder()
-        .setTitle("<:oz_play:1251569356412813394> 𝗖𝗨𝗦𝗧𝗢𝗠 𝗔𝗥𝗔𝗠 ")
-        .setDescription(randomDescription)
-        .setThumbnail(
-          "https://media.discordapp.net/attachments/1249448980258226249/1249449049824690278/giaunoibuonvaodau.png?ex=6667579b&is=6666061b&hm=e89d8f95eaa0af1468cd53fbb055e5ec7ab1a7b5dd0d3a68749512ba591f0aca&=&format=webp&quality=lossless&width=385&height=385"
-        )
-        .setColor("#1cf1ef")
-        .setAuthor({
-          name: member.user.username,
-          iconURL: member.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setTimestamp(Date.now())
-        .setFooter({
-          text: "Connected",
-          iconURL:
-            "https://cdn.discordapp.com/attachments/1249448980258226249/1251506086310318131/oz_on.png?ex=666ed35e&is=666d81de&hm=8edb196bc4e73337bf411ca60f18d0793b7a57e554cc21c7ba4875fa3290ddc9&",
-        })
-        .addFields([
-          {
-            name: `Thời gian chờ`,
-            value: initialTimeAx,
-            inline: true,
-          },
-          {
-            name: `◜Slots◝`,
-            value: `**◟[${slots}/5]◞**`,
-            inline: true,
-          },
-        ]);
+      embed.addFields([
+        { name: `Thời gian chờ`, value: `<t:${Math.floor(timeEnd / 1000)}:R>`, inline: true },
+        { name: `◜Slots◝`, value: `**◟[${slots}/10]◞**`, inline: true }
+      ]);
     } // Kiểm tra timeEscapeEnd và cập nhật hành vi của lệnh
     if (timeEscapeEnd && Date.now() < timeEscapeEnd) {
     } else {
-      await context.channel.send(`Aram`);
+      await context.channel.send(`<@&${process.env.ARAM_ID}>`);
       timeEscapeEnd = Date.now() + 12 * 60 * 60 * 1000;
       // Đặt thời gian kết thúc cho 12 giờ tiếp theo
     }
